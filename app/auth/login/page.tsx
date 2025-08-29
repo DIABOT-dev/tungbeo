@@ -47,24 +47,19 @@ export default function AuthPage() {
 
   const handleGoogle = async () => {
     try {
-      // Fallback tuyệt đối để tránh sai SITE_URL
-      const origin = typeof window !== 'undefined' 
-        ? window.location.origin 
-        : process.env.NEXT_PUBLIC_SITE_URL || '';
-      
-      const redirectTo = `${origin}/auth/callback`;
+      // Dynamic origin detection (Bolt-safe)
+      const redirectTo = `${window.location.origin}/auth/callback`;
       
       console.log('[Google OAuth] Redirect to:', redirectTo);
 
-      const { error, data } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo }
       });
 
       if (error) {
         console.error('[Google OAuth] Error:', error);
-        // Cho hiện lỗi lên URL để bạn nhìn thấy ngay
-        window.location.href = `/auth/login?e=${encodeURIComponent(error.message)}`;
+        toast.error(`Google OAuth Error: ${error.message}`);
         return;
       }
       
@@ -77,20 +72,16 @@ export default function AuthPage() {
 
   const handleFacebook = async () => {
     try {
-      const origin = typeof window !== 'undefined' 
-        ? window.location.origin 
-        : process.env.NEXT_PUBLIC_SITE_URL || '';
-      
-      const redirectTo = `${origin}/auth/callback`;
+      const redirectTo = `${window.location.origin}/auth/callback`;
 
-      const { error, data } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: { redirectTo }
       });
 
       if (error) {
         console.error('[Facebook OAuth] Error:', error);
-        window.location.href = `/auth/login?e=${encodeURIComponent(error.message)}`;
+        toast.error(`Facebook OAuth Error: ${error.message}`);
         return;
       }
     } catch (err: any) {

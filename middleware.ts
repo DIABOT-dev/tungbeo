@@ -23,14 +23,17 @@ export async function middleware(request: NextRequest) {
   try {
     const supabase = createMiddlewareClient({ req: request, res });
     
-    // Sync session cookie
+    // Sync session cookie - critical for auth state
+    await supabase.auth.getSession();
+
+    // Check authentication
     const { data: { session } } = await supabase.auth.getSession();
 
     if (!session) {
       return NextResponse.redirect(new URL('/auth/login', request.url));
     }
 
-    // Check onboarding status
+    // Check onboarding status for authenticated users
     const { data: profile } = await supabase
       .from('profiles')
       .select('onboarding_status')
