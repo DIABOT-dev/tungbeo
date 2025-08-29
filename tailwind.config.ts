@@ -26,6 +26,7 @@ const config: Config = {
           500: '#ff8855',   // nhấn (cam san hô)
         },
         background: 'hsl(var(--background))',
+      }
       boxShadow: {
         soft: '0 6px 20px rgba(16,185,129,.15)',
       },
