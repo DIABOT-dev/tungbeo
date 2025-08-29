@@ -12,6 +12,7 @@ import { ChartCard } from '@/components/dashboard/ChartCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DEV_BYPASS, fakeUser, mockSeries7d } from '@/lib/dev';
 
 type Metric = Database['public']['Tables']['metrics']['Row'];
 
@@ -33,6 +34,38 @@ export default function DashboardPage() {
     (async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session && DEV_BYPASS) {
+          // không login nhưng vẫn vào được, dùng user & data giả để dựng UI
+          setUser(fakeUser as any);
+          setProfile({
+            id: fakeUser.id,
+            email: fakeUser.email,
+            display_name: 'Nhà thiết kế 😎',
+            onboarding_status: 'completed',
+            timezone: 'Asia/Bangkok',
+            target_glucose_min: 70,
+            target_glucose_max: 180,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          } as any);
+
+          // số liệu hiển thị thẻ và chart
+          setTodayMetrics([
+            { id: 'm1', user_id: fakeUser.id, type: 'glucose', value: 118, unit: 'mg/dL', recorded_at: new Date().toISOString(), notes: null, created_at: new Date().toISOString() } as any,
+            { id: 'm2', user_id: fakeUser.id, type: 'weight',  value: 67.2, unit: 'kg',    recorded_at: new Date().toISOString(), notes: null, created_at: new Date().toISOString() } as any,
+            { id: 'm3', user_id: fakeUser.id, type: 'activity', value: 8500, unit: 'steps', recorded_at: new Date().toISOString(), notes: null, created_at: new Date().toISOString() } as any,
+            { id: 'm4', user_id: fakeUser.id, type: 'sleep', value: 7.5, unit: 'hours', recorded_at: new Date().toISOString(), notes: null, created_at: new Date().toISOString() } as any,
+          ]);
+          setWeekGlucose(mockSeries7d(90,160));
+          setWeekWeight(mockSeries7d(65,68));
+
+          setCoins(125);
+          setStreak(7);
+          setLoading(false);
+          return; // <- dừng ở đây, không gọi DB thật
+        }
+        
         if (!session) return;
 
         setUser(session.user);
