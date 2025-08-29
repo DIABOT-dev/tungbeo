@@ -3,6 +3,12 @@ import type { NextRequest } from 'next/server';
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 
 export async function middleware(request: NextRequest) {
+  // >>> BYPASS AUTH TRONG DEV
+  if (process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH === '1') {
+    return NextResponse.next();
+  }
+  // <<<
+
   const res = NextResponse.next();
   const url = request.nextUrl.clone();
 
