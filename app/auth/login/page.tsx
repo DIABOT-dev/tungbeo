@@ -47,56 +47,54 @@ export default function AuthPage() {
 
   const handleGoogle = async () => {
     try {
-      if (!supabase) {
-        toast.error('Thiếu cấu hình Supabase. Nhập ở khung bên dưới.');
-        return;
-      }
-
       // Fallback tuyệt đối để tránh sai SITE_URL
       const origin = typeof window !== 'undefined' 
         ? window.location.origin 
         : process.env.NEXT_PUBLIC_SITE_URL || '';
       
       const redirectTo = `${origin}/auth/callback`;
+      
+      console.log('[Google OAuth] Redirect to:', redirectTo);
 
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error, data } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo }
       });
 
       if (error) {
+        console.error('[Google OAuth] Error:', error);
         // Cho hiện lỗi lên URL để bạn nhìn thấy ngay
         window.location.href = `/auth/login?e=${encodeURIComponent(error.message)}`;
         return;
       }
+      
+      console.log('[Google OAuth] Success, redirecting...');
     } catch (err: any) {
+      console.error('[Google OAuth] Exception:', err);
       toast.error(err?.message || 'Không thể đăng nhập Google');
     }
   };
 
   const handleFacebook = async () => {
     try {
-      if (!supabase) {
-        toast.error('Thiếu cấu hình Supabase. Nhập ở khung bên dưới.');
-        return;
-      }
-
       const origin = typeof window !== 'undefined' 
         ? window.location.origin 
         : process.env.NEXT_PUBLIC_SITE_URL || '';
       
       const redirectTo = `${origin}/auth/callback`;
 
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error, data } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: { redirectTo }
       });
 
       if (error) {
+        console.error('[Facebook OAuth] Error:', error);
         window.location.href = `/auth/login?e=${encodeURIComponent(error.message)}`;
         return;
       }
     } catch (err: any) {
+      console.error('[Facebook OAuth] Exception:', err);
       toast.error(err?.message || 'Không thể đăng nhập Facebook');
     }
   };
