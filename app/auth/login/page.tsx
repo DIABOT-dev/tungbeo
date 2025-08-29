@@ -33,6 +33,10 @@ export default function AuthPage() {
       if (!supabase) return; // chưa có config
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        // Dọn sạch ?e=... để không hiện lỗi nháy
+        if (typeof window !== 'undefined' && window.location.search.includes('e=')) {
+          window.history.replaceState({}, '', '/auth/login');
+        }
         const { data: profile } = await supabase
           .from('profiles')
           .select('onboarding_status')
@@ -47,10 +51,12 @@ export default function AuthPage() {
 
   const handleGoogle = async () => {
     try {
-      // Dynamic origin detection (Bolt-safe)
-      const redirectTo = `${window.location.origin}/auth/callback`;
+      // Dynamic origin detection (Bolt-safe) - no ENV dependency
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const redirectTo = `${origin}/auth/callback`;
       
       console.log('[Google OAuth] Redirect to:', redirectTo);
+      console.log('[Google OAuth] Current origin:', origin);
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -59,14 +65,15 @@ export default function AuthPage() {
 
       if (error) {
         console.error('[Google OAuth] Error:', error);
-        toast.error(`Google OAuth Error: ${error.message}`);
+        // Show error in URL for immediate visibility
+        window.location.href = `/auth/login?e=${encodeURIComponent(error.message)}`;
         return;
       }
       
       console.log('[Google OAuth] Success, redirecting...');
     } catch (err: any) {
       console.error('[Google OAuth] Exception:', err);
-      toast.error(err?.message || 'Không thể đăng nhập Google');
+      window.location.href = `/auth/login?e=${encodeURIComponent(err?.message || 'Google OAuth failed')}`;
     }
   };
 
