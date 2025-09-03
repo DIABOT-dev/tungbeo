@@ -34,7 +34,7 @@ export default function AuthPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         // Dọn sạch ?e=... để không hiện lỗi nháy
-        if (typeof window !== 'undefined' && window.location.search.includes('e=')) {
+        if (typeof window !== 'undefined' && window.location?.search?.includes('e=')) {
           window.history.replaceState({}, '', '/auth/login');
         }
         const { data: profile } = await supabase
@@ -52,7 +52,7 @@ export default function AuthPage() {
   const handleGoogle = async () => {
     try {
       // Dynamic origin detection (Bolt-safe) - no ENV dependency
-      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const origin = typeof window !== 'undefined' ? window.location?.origin || '' : '';
       const redirectTo = `${origin}/auth/callback`;
       
       console.log('[Google OAuth] Redirect to:', redirectTo);
@@ -79,7 +79,7 @@ export default function AuthPage() {
 
   const handleFacebook = async () => {
     try {
-      const redirectTo = `${window.location.origin}/auth/callback`;
+      const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : '/auth/callback';
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
@@ -204,6 +204,38 @@ export default function AuthPage() {
           <div className="text-center text-xs text-gray-500 mb-4">hoặc dùng email</div>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
+            {/* DEV QUICK LOGIN */}
+            {process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH === '1' && (
+              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-xs text-yellow-800 mb-2">🚀 DEV MODE - Quick Login:</p>
+                <div className="flex gap-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      setEmail('dev@diabot.local');
+                      setPassword('dev123456');
+                    }}
+                  >
+                    Fill Dev Credentials
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        window.location.href = '/dashboard';
+                      }
+                    }}
+                  >
+                    Skip to Dashboard
+                  </Button>
+                </div>
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" required value={email} onChange={e => setEmail(e.target.value)} />
