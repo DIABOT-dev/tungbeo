@@ -1,0 +1,14 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/auth/callback/page": "app/auth/callback/page.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/auth/whoami/route": "app/auth/whoami/route.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/family/page": "app/family/page.js",
+  "/log/page": "app/log/page.js",
+  "/onboarding/page": "app/onboarding/page.js",
+  "/page": "app/page.js",
+  "/reminders/page": "app/reminders/page.js",
+  "/reports/page": "app/reports/page.js",
+  "/settings/page": "app/settings/page.js"
+}
